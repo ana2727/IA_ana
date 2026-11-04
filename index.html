@@ -1,0 +1,554 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio IA</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #06152e, #0b3470, #087ca8);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(15px);
+            width: 100%;
+            max-width: 650px;
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .topo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .icone {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .subtitulo {
+            color: #c8e6ff;
+            line-height: 1.5;
+        }
+
+        .progresso-texto {
+            display: flex;
+            justify-content: space-between;
+            color: #c8e6ff;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .barra {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+
+        .barra-preenchida {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #93e8ff);
+            transition: width 0.3s ease;
+        }
+
+        .pergunta {
+            font-size: 23px;
+            line-height: 1.4;
+            margin-bottom: 22px;
+        }
+
+        .opcoes {
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+        }
+
+        .opcao {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            padding: 17px;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            line-height: 1.5;
+        }
+
+        .opcao:hover:not(:disabled) {
+            background: rgba(56, 189, 248, 0.22);
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+        }
+
+        .opcao:disabled {
+            cursor: default;
+        }
+
+        .opcao.selecionada {
+            background: rgba(56, 189, 248, 0.25);
+            border: 2px solid #38bdf8;
+        }
+
+        .explicacao {
+            display: none;
+            margin-top: 22px;
+            padding: 20px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.09);
+            border-left: 4px solid #38bdf8;
+            line-height: 1.6;
+            animation: aparecer 0.3s ease;
+        }
+
+        .explicacao h3 {
+            margin-bottom: 8px;
+            color: #7dd3fc;
+        }
+
+        .explicacao p {
+            color: #e0f2fe;
+            font-size: 15px;
+        }
+
+        .botao {
+            display: none;
+            width: 100%;
+            padding: 16px;
+            margin-top: 22px;
+            background: linear-gradient(90deg, #087ca8, #38bdf8);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .botao:hover {
+            filter: brightness(1.12);
+            transform: translateY(-2px);
+        }
+
+        .resultado {
+            display: none;
+            text-align: center;
+        }
+
+        .resultado h2 {
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        .resultado p {
+            line-height: 1.7;
+            color: #e0f2fe;
+        }
+
+        .lista-respostas {
+            margin-top: 22px;
+            text-align: left;
+        }
+
+        .resposta-item {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 3px solid #38bdf8;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .resposta-item strong {
+            color: #7dd3fc;
+        }
+
+        .rodape {
+            text-align: center;
+            color: #bfdbfe;
+            font-size: 12px;
+            margin-top: 25px;
+        }
+
+        @keyframes aparecer {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 23px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+
+            .pergunta {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container">
+
+        <header class="topo">
+            <div class="icone">🤖</div>
+            <h1>Desafio IA</h1>
+            <p class="subtitulo">
+                Dois caminhos, diferentes opiniões.
+                O que você pensa sobre a inteligência artificial?
+                Responda às perguntas e descubra diferentes perspectivas!
+            </p>
+        </header>
+
+        <section id="jogo">
+
+            <div class="progresso-texto">
+                <span id="numero">Pergunta 1 de 5</span>
+                <span id="respondidas">Respondidas: 0</span>
+            </div>
+
+            <div class="barra">
+                <div class="barra-preenchida" id="barra"></div>
+            </div>
+
+            <h2 class="pergunta" id="pergunta"></h2>
+
+            <div class="opcoes" id="opcoes"></div>
+
+            <div class="explicacao" id="explicacao" aria-live="polite">
+                <h3 id="titulo-explicacao"></h3>
+                <p id="texto-explicacao"></p>
+            </div>
+
+            <button class="botao" id="proximo" onclick="avancar()">
+                Próxima pergunta →
+            </button>
+
+        </section>
+
+        <section class="resultado" id="resultado">
+
+            <div class="icone">💙</div>
+
+            <h2>Questionário concluído!</h2>
+
+            <p>
+                Obrigado por participar!
+                Suas opiniões ajudam a refletir sobre os impactos
+                da inteligência artificial na sociedade.
+            </p>
+
+            <div class="lista-respostas" id="lista-respostas"></div>
+
+            <button class="botao" style="display:block"
+                    onclick="reiniciar()">
+                Responder novamente ↻
+            </button>
+
+        </section>
+
+        <footer class="rodape">
+            DESAFIO IA • PENSAR É QUESTIONAR
+        </footer>
+
+    </main>
+
+    <script>
+
+        const perguntas = [
+
+            {
+                pergunta: "1. Você confiaria em uma IA para tomar uma decisão importante sobre sua vida?",
+
+                opcoes: [
+                    "A) Sim, se ela apresentasse bons argumentos.",
+                    "B) Não, porque decisões importantes precisam de julgamento humano."
+                ],
+
+                explicacoes: [
+                    "A escolha A pode indicar confiança na capacidade de análise da tecnologia.",
+                    "A escolha B pode demonstrar preocupação com a falta de empatia e de compreensão das experiências humanas."
+                ]
+            },
+
+            {
+                pergunta: "2. Você usaria IA para fazer um trabalho escolar?",
+
+                opcoes: [
+                    "A) Sim, para facilitar a aprendizagem e economizar tempo.",
+                    "B) Não, prefiro fazer sozinho para aprender melhor."
+                ],
+
+                explicacoes: [
+                    "A escolha A indica que a pessoa vê a IA como uma ferramenta de apoio.",
+                    "A escolha B demonstra preferência pela autonomia e pelo desenvolvimento das próprias habilidades."
+                ]
+            },
+
+            {
+                pergunta: "3. Você aceitaria que uma IA pudesse substituir algumas profissões?",
+
+                opcoes: [
+                    "A) Sim, porque isso pode aumentar a produtividade.",
+                    "B) Não, porque muitas pessoas poderiam perder seus empregos."
+                ],
+
+                explicacoes: [
+                    "A escolha A valoriza os avanços tecnológicos e a eficiência.",
+                    "A escolha B demonstra preocupação com as consequências sociais e econômicas da automação."
+                ]
+            },
+
+            {
+                pergunta: "4. Você contaria um problema pessoal para uma IA?",
+
+                opcoes: [
+                    "A) Sim, porque ela pode me ouvir sem me julgar.",
+                    "B) Não, prefiro conversar com uma pessoa de confiança."
+                ],
+
+                explicacoes: [
+                    "A escolha A pode indicar que a pessoa valoriza a praticidade e a sensação de acolhimento.",
+                    "A escolha B destaca a importância das relações humanas e da conexão emocional."
+                ]
+            },
+
+            {
+                pergunta: "5. Você acha que o uso excessivo da IA pode prejudicar a capacidade de pensar das pessoas?",
+
+                opcoes: [
+                    "A) Sim, porque podemos ficar dependentes de respostas prontas.",
+                    "B) Não, porque a IA também pode estimular o pensamento e a criatividade."
+                ],
+
+                explicacoes: [
+                    "A escolha A demonstra preocupação com a dependência tecnológica.",
+                    "A escolha B considera que, quando usada adequadamente, a IA pode ampliar conhecimentos e ajudar a desenvolver novas ideias."
+                ]
+            }
+
+        ];
+
+        let atual = 0;
+
+        let respostas = [];
+
+        let respondeu = false;
+
+        const elementoPergunta = document.getElementById("pergunta");
+
+        const elementoOpcoes = document.getElementById("opcoes");
+
+        const elementoExplicacao = document.getElementById("explicacao");
+
+        const botaoProximo = document.getElementById("proximo");
+
+
+        function mostrarPergunta() {
+
+            respondeu = false;
+
+            const item = perguntas[atual];
+
+            document.getElementById("numero").textContent =
+                `Pergunta ${atual + 1} de ${perguntas.length}`;
+
+            document.getElementById("respondidas").textContent =
+                `Respondidas: ${respostas.length}`;
+
+            document.getElementById("barra").style.width =
+                `${(atual / perguntas.length) * 100}%`;
+
+            elementoPergunta.textContent = item.pergunta;
+
+            elementoOpcoes.innerHTML = "";
+
+            elementoExplicacao.style.display = "none";
+
+            botaoProximo.style.display = "none";
+
+            item.opcoes.forEach((opcao, indice) => {
+
+                const botao = document.createElement("button");
+
+                botao.className = "opcao";
+
+                botao.textContent = opcao;
+
+                botao.onclick = () => responder(indice);
+
+                elementoOpcoes.appendChild(botao);
+
+            });
+
+        }
+
+
+        function responder(escolha) {
+
+            if (respondeu) return;
+
+            respondeu = true;
+
+            const item = perguntas[atual];
+
+            const botoes = elementoOpcoes.querySelectorAll(".opcao");
+
+            respostas[atual] = escolha;
+
+            botoes.forEach((botao, indice) => {
+
+                botao.disabled = true;
+
+                if (indice === escolha) {
+                    botao.classList.add("selecionada");
+                }
+
+            });
+
+            document.getElementById("titulo-explicacao").textContent =
+                "💡 Entenda sua escolha";
+
+            document.getElementById("texto-explicacao").textContent =
+                item.explicacoes[escolha];
+
+            elementoExplicacao.style.display = "block";
+
+            document.getElementById("respondidas").textContent =
+                `Respondidas: ${respostas.length}`;
+
+            document.getElementById("barra").style.width =
+                `${((atual + 1) / perguntas.length) * 100}%`;
+
+            botaoProximo.textContent =
+                atual === perguntas.length - 1
+                    ? "Finalizar questionário 🏆"
+                    : "Próxima pergunta →";
+
+            botaoProximo.style.display = "block";
+
+        }
+
+
+        function avancar() {
+
+            if (atual < perguntas.length - 1) {
+
+                atual++;
+
+                mostrarPergunta();
+
+            } else {
+
+                mostrarResultado();
+
+            }
+
+        }
+
+
+        function mostrarResultado() {
+
+            document.getElementById("jogo").style.display = "none";
+
+            document.getElementById("resultado").style.display = "block";
+
+            document.getElementById("barra").style.width = "100%";
+
+            const lista = document.getElementById("lista-respostas");
+
+            lista.innerHTML = "";
+
+            perguntas.forEach((item, indice) => {
+
+                const respostaEscolhida = item.opcoes[respostas[indice]];
+
+                const div = document.createElement("div");
+
+                div.className = "resposta-item";
+
+                const titulo = document.createElement("strong");
+
+                titulo.textContent = item.pergunta;
+
+                const texto = document.createElement("p");
+
+                texto.textContent = respostaEscolhida;
+
+                div.appendChild(titulo);
+
+                div.appendChild(texto);
+
+                lista.appendChild(div);
+
+            });
+
+        }
+
+
+        function reiniciar() {
+
+            atual = 0;
+
+            respostas = [];
+
+            respondeu = false;
+
+            document.getElementById("jogo").style.display = "block";
+
+            document.getElementById("resultado").style.display = "none";
+
+            mostrarPergunta();
+
+        }
+
+
+        mostrarPergunta();
+
+    </script>
+
+</body>
+</html>
